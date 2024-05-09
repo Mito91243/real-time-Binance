@@ -1,7 +1,6 @@
 import WebSocket from "ws";
 import zlib from "zlib";
 
-
 function run_okx_aggr() {
   // Replace 'wss://your-websocket-url' with your actual WebSocket server URL
   const ws = new WebSocket("wss://wspri.okx.com:8443/ws/v5/ipublic");
@@ -211,7 +210,6 @@ function run_binance_aggr() {
             console.log(
               `AggTrade : Symbol: ${symbol}, Price: ${price}, Quantity: ${quantity}`
             );
-
           } else if (message.e === "markPriceUpdate") {
             const {
               e: eventType,
@@ -227,7 +225,6 @@ function run_binance_aggr() {
             console.log(
               `MarkPriceUpdate : Symbol: ${symbol}, Price: ${price} , Timestamp: ${eventTime}`
             );
-
           }
         }
       });
@@ -244,8 +241,6 @@ function run_binance_aggr() {
     console.log("WebSocket connection closed:", event);
   };
 }
-
-
 
 run_binance_aggr();
 //! For console use
