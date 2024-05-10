@@ -1,5 +1,11 @@
-import WebSocket from "ws";
-import zlib from "zlib";
+//import WebSocket from "ws";
+//import zlib from "zlib";
+
+let average_trade_size = 0;
+let total_trade_size = 0;
+let total_trade_num = 0;
+let total_trade_above_1BTC = 0;
+let current_btc_val = 0;
 
 function run_okx_aggr() {
   // Replace 'wss://your-websocket-url' with your actual WebSocket server URL
@@ -144,7 +150,7 @@ function run_binance_aggr() {
   let messageId = 1; // Initialize message ID
   const ws = new WebSocket("wss://sfstream.binance.com/stream");
 
-  ws.on("open", function () {
+  ws.onopen = function () {
     console.log("Connected to the WebSocket server.");
 
     // Send the subscription message
@@ -163,7 +169,7 @@ function run_binance_aggr() {
         id: 3,
       })
     );
-  });
+  };
 
   // Set interval to send the message every 5 seconds with incremented ID
   setInterval(() => {
@@ -179,20 +185,17 @@ function run_binance_aggr() {
   }, 5000); // 5000 milliseconds = 5 seconds
 
   ws.onmessage = function (event) {
-    if (event.data instanceof Buffer) {
-      // Convert Buffer to base64
-      const base64Data = event.data.toString("base64");
+    if (event.data instanceof Blob) {
+      // Handling binary data (Blob) which is expected if the data is compressed
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          const decompressed = pako.inflate(new Uint8Array(this.result), {
+            to: "string",
+          });
+          const message = JSON.parse(decompressed);
 
-      // Decode base64 using zlib
-      const buffer = Buffer.from(base64Data, "base64");
-      zlib.unzip(buffer, (err, buffer) => {
-        if (err) {
-          console.log("Error decoding message:", err);
-        } else {
-          // Assuming the data received is a JSON string
-          const message = JSON.parse(buffer.toString());
-
-          // Check the type of the message and destructure accordingly
+          // Process your message here
           if (message.e === "aggTrade") {
             const {
               e: eventType,
@@ -206,10 +209,17 @@ function run_binance_aggr() {
               T: tradeTime,
               m: isBuyerMaker,
             } = message;
+            current_btc_val = parseFloat(price);
+            total_trade_num++;
+            total_trade_size += parseFloat(quantity);
+            if (parseFloat(quantity) > 1) {
+              total_trade_above_1BTC++;
+            }
+            average_trade_size = total_trade_size / total_trade_num;
 
-            console.log(
-              `AggTrade : Symbol: ${symbol}, Price: ${price}, Quantity: ${quantity}`
-            );
+            // console.log(
+            //  `AggTrade: Symbol: ${symbol}, Price: ${price}, Quantity: ${quantity}`
+            //);
           } else if (message.e === "markPriceUpdate") {
             const {
               e: eventType,
@@ -221,15 +231,71 @@ function run_binance_aggr() {
               r: fundingRate,
               T: nextFundingTime,
             } = message;
-
-            console.log(
-              `MarkPriceUpdate : Symbol: ${symbol}, Price: ${price} , Timestamp: ${eventTime}`
-            );
+            //console.log(
+            // `MarkPriceUpdate: Symbol: ${symbol}, Price: ${price}, Timestamp: ${eventTime}`
+            //);
           }
+
+          // Update HTML with new data
+          updateTradeStats();
+        } catch (err) {
+          console.log("Failed to decompress or parse the message:", err);
         }
-      });
+      };
+      reader.readAsArrayBuffer(event.data);
+    } else if (typeof event.data === "string") {
+      // Handling non-binary data (simple JSON)
+      try {
+        const message = JSON.parse(event.data);
+
+        // Similar processing as above
+        if (message.e === "aggTrade") {
+          const {
+            e: eventType,
+            E: eventTime,
+            a: aggTradeId,
+            s: symbol,
+            p: price,
+            q: quantity,
+            f: firstTradeId,
+            l: lastTradeId,
+            T: tradeTime,
+            m: isBuyerMaker,
+          } = message;
+          current_btc_val = parseFloat(price);
+          total_trade_num++;
+          total_trade_size += parseFloat(quantity);
+          if (parseFloat(quantity) > 1) {
+            total_trade_above_1BTC++;
+          }
+          average_trade_size = total_trade_size / total_trade_num;
+
+          // console.log(
+          // `AggTrade: Symbol: ${symbol}, Price: ${price}, Quantity: ${quantity}`
+          //);
+        } else if (message.e === "markPriceUpdate") {
+          const {
+            e: eventType,
+            E: eventTime,
+            s: symbol,
+            p: price,
+            P: indexPrice,
+            i: interestRate,
+            r: fundingRate,
+            T: nextFundingTime,
+          } = message;
+          // console.log(
+          //  `MarkPriceUpdate: Symbol: ${symbol}, Price: ${price}, Timestamp: ${eventTime}`
+          // );
+        }
+
+        // Update HTML with new data
+        updateTradeStats();
+      } catch (err) {
+        console.log("Error parsing message:", err);
+      }
     } else {
-      console.log("Received non-buffer data:", event.data);
+      console.log("Received non-expected data type:", event.data);
     }
   };
 
@@ -242,5 +308,13 @@ function run_binance_aggr() {
   };
 }
 
+function updateTradeStats() {
+  document.getElementById("average-trade-size").innerText =
+    average_trade_size.toFixed(2);
+  document.getElementById("total-trade-num").innerText = total_trade_num;
+  document.getElementById("total-trade-above-1btc").innerText =
+    total_trade_above_1BTC;
+  document.getElementById("current_btc_val").innerText = current_btc_val;
+}
 run_binance_aggr();
 //! For console use
