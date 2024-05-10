@@ -6,7 +6,7 @@ let total_trade_size = 0;
 let total_trade_num = 0;
 let total_trade_above_1BTC = 0;
 let current_btc_val = 0;
-
+let filter_quantity = 1
 function run_okx_aggr() {
   // Replace 'wss://your-websocket-url' with your actual WebSocket server URL
   const ws = new WebSocket("wss://wspri.okx.com:8443/ws/v5/ipublic");
