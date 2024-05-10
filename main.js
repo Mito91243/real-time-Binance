@@ -319,3 +319,5 @@ function updateTradeStats() {
 }
 run_binance_aggr();
 //! For console use
+// Schedule run_binance_aggr to run every 2 hours
+setInterval(run_binance_aggr, 7200000); // 7200000 milliseconds = 2 hours
