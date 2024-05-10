@@ -217,10 +217,10 @@ function run_binance_aggr() {
               total_trade_above_1BTC++;
             }
             average_trade_size = total_trade_size / total_trade_num;
-
-            // console.log(
-            //  `AggTrade: Symbol: ${symbol}, Price: ${price}, Quantity: ${quantity}`
-            //);
+            //! PUT NEW FUNC
+            if (quantity > 1) {
+              Push_To_Table(price, quantity, tradeTime);
+            }
           } else if (message.e === "markPriceUpdate") {
             const {
               e: eventType,
@@ -232,11 +232,7 @@ function run_binance_aggr() {
               r: fundingRate,
               T: nextFundingTime,
             } = message;
-            //console.log(
-            // `MarkPriceUpdate: Symbol: ${symbol}, Price: ${price}, Timestamp: ${eventTime}`
-            //);
           }
-
           // Update HTML with new data
           updateTradeStats();
         } catch (err) {
@@ -244,57 +240,6 @@ function run_binance_aggr() {
         }
       };
       reader.readAsArrayBuffer(event.data);
-    } else if (typeof event.data === "string") {
-      // Handling non-binary data (simple JSON)
-      try {
-        const message = JSON.parse(event.data);
-
-        // Similar processing as above
-        if (message.e === "aggTrade") {
-          const {
-            e: eventType,
-            E: eventTime,
-            a: aggTradeId,
-            s: symbol,
-            p: price,
-            q: quantity,
-            f: firstTradeId,
-            l: lastTradeId,
-            T: tradeTime,
-            m: isBuyerMaker,
-          } = message;
-          current_btc_val = parseFloat(price);
-          total_trade_num++;
-          total_trade_size += parseFloat(quantity);
-          if (parseFloat(quantity) > 1) {
-            total_trade_above_1BTC++;
-          }
-          average_trade_size = total_trade_size / total_trade_num;
-
-          // console.log(
-          // `AggTrade: Symbol: ${symbol}, Price: ${price}, Quantity: ${quantity}`
-          //);
-        } else if (message.e === "markPriceUpdate") {
-          const {
-            e: eventType,
-            E: eventTime,
-            s: symbol,
-            p: price,
-            P: indexPrice,
-            i: interestRate,
-            r: fundingRate,
-            T: nextFundingTime,
-          } = message;
-          // console.log(
-          //  `MarkPriceUpdate: Symbol: ${symbol}, Price: ${price}, Timestamp: ${eventTime}`
-          // );
-        }
-
-        // Update HTML with new data
-        updateTradeStats();
-      } catch (err) {
-        console.log("Error parsing message:", err);
-      }
     } else {
       console.log("Received non-expected data type:", event.data);
     }
@@ -317,6 +262,52 @@ function updateTradeStats() {
     total_trade_above_1BTC;
   document.getElementById("current_btc_val").innerText = current_btc_val;
 }
+
+function Push_To_Table(price, quantity, time) {
+  // Find the table body in your HTML by its ID
+  const tbody = document.getElementById("tradeTableBody");
+
+  // Create a new row element
+  const row = document.createElement("tr");
+  row.className = "border-b border-neutral-200 white:border-white/10"; // Apply the same styling
+
+  // Apply conditional styling based on the quantity
+  if (quantity > 10) {
+    row.style.backgroundColor = "green"; 
+  } else if (quantity > 5) {
+    row.style.backgroundColor = "lime"; 
+  } else if (quantity > 50) {
+    row.style.backgroundColor = "red"
+  }
+
+  // Create and append the cell for the trade index (assuming you want it)
+  const indexCell = document.createElement("td");
+  indexCell.className = "whitespace-nowrap px-6 py-4 font-medium";
+  indexCell.textContent = tbody.children.length + 1; // Automatically number the row
+  row.appendChild(indexCell);
+
+  // Create and append the cell for the quantity
+  const quantityCell = document.createElement("td");
+  quantityCell.className = "whitespace-nowrap px-6 py-4";
+  quantityCell.textContent = quantity + " BTC"; // Assuming quantity needs to be formatted
+  row.appendChild(quantityCell);
+
+  // Create and append the cell for the price
+  const priceCell = document.createElement("td");
+  priceCell.className = "whitespace-nowrap px-6 py-4";
+  priceCell.textContent = price + " USD"; // Assuming price needs to be formatted
+  row.appendChild(priceCell);
+
+  // Create and append the cell for the time
+  const timeCell = document.createElement("td");
+  timeCell.className = "whitespace-nowrap px-6 py-4";
+  timeCell.textContent = new Date(time).toLocaleString(); // Convert timestamp to readable format
+  row.appendChild(timeCell);
+
+  // Append the new row to the table body
+  tbody.insertBefore(row, tbody.firstChild)
+}
+
 run_binance_aggr();
 //! For console use
 // Schedule run_binance_aggr to run every 2 hours
