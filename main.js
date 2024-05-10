@@ -174,6 +174,7 @@ function run_binance_aggr() {
   // Set interval to send the message every 5 seconds with incremented ID
   setInterval(() => {
     messageId++; // Increment ID by 1 each time
+    messageId++;
     ws.send(
       JSON.stringify({
         method: "GET_PROPERTY",
