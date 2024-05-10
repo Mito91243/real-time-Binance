@@ -181,7 +181,7 @@ function run_binance_aggr() {
         id: messageId,
       })
     );
-    console.log("Sent message with ID:", messageId);
+    //console.log("Sent message with ID:", messageId);
   }, 5000); // 5000 milliseconds = 5 seconds
 
   ws.onmessage = function (event) {
