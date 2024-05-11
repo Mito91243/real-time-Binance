@@ -294,7 +294,7 @@ function Push_To_Table(price, quantity, time, flag) {
   // Create and append the cell for the price
   const priceCell = document.createElement("td");
   priceCell.className = "whitespace-nowrap px-6 py-4";
-  priceCell.textContent = price + " USD"; // Assuming price needs to be formatted
+  priceCell.textContent = price*quantity + " USD"; // Assuming price needs to be formatted
   row.appendChild(priceCell);
 
   // Create and append the cell for the time
