@@ -6,7 +6,7 @@ let total_trade_size = 0;
 let total_trade_num = 0;
 let total_trade_above_1BTC = 0;
 let current_btc_val = 0;
-let filter_quantity = 1
+let filter_quantity = 1;
 function run_okx_aggr() {
   // Replace 'wss://your-websocket-url' with your actual WebSocket server URL
   const ws = new WebSocket("wss://wspri.okx.com:8443/ws/v5/ipublic");
@@ -219,7 +219,7 @@ function run_binance_aggr() {
             average_trade_size = total_trade_size / total_trade_num;
             //! PUT NEW FUNC
             if (quantity > 1) {
-              Push_To_Table(price, quantity, tradeTime , isBuyerMaker);
+              Push_To_Table(price, quantity, tradeTime, isBuyerMaker);
             }
           } else if (message.e === "markPriceUpdate") {
             const {
@@ -271,40 +271,41 @@ function Push_To_Table(price, quantity, time, flag) {
   const row = document.createElement("tr");
   row.className = "border-b border-neutral-200 white:border-white/10"; // Apply the same styling
 
-
   // Apply conditional styling based on the quantity
   if (flag) {
-    row.style.backgroundColor = "green"; 
+    row.style.backgroundColor = "green";
   } else {
-    row.style.backgroundColor = "red"
+    row.style.backgroundColor = "red";
   }
 
   // Create and append the cell for the trade index (assuming you want it)
   const indexCell = document.createElement("td");
-  indexCell.className = "whitespace-nowrap px-6 py-4 font-medium";
+  indexCell.className =
+    "whitespace-nowrap px-6 py-4 font-medium text-white font-bold"; // Added text-white and font-bold
   indexCell.textContent = tbody.children.length + 1; // Automatically number the row
   row.appendChild(indexCell);
 
   // Create and append the cell for the quantity
   const quantityCell = document.createElement("td");
-  quantityCell.className = "whitespace-nowrap px-6 py-4";
+  quantityCell.className = "whitespace-nowrap px-6 py-4 text-white font-bold"; // Added text-white and font-bold
   quantityCell.textContent = quantity + " BTC"; // Assuming quantity needs to be formatted
   row.appendChild(quantityCell);
 
   // Create and append the cell for the price
   const priceCell = document.createElement("td");
-  priceCell.className = "whitespace-nowrap px-6 py-4";
-  priceCell.textContent = (parseInt(price)*parseFloat(quantity)).toFixed(0) + " $"; // Assuming price needs to be formatted
+  priceCell.className = "whitespace-nowrap px-6 py-4 text-white font-bold"; // Added text-white and font-bold
+  priceCell.textContent =
+    (parseInt(price) * parseFloat(quantity)).toFixed(0) + " $"; // Assuming price needs to be formatted
   row.appendChild(priceCell);
 
   // Create and append the cell for the time
   const timeCell = document.createElement("td");
-  timeCell.className = "whitespace-nowrap px-6 py-4";
+  timeCell.className = "whitespace-nowrap px-6 py-4 text-white font-bold"; // Added text-white and font-bold
   timeCell.textContent = new Date(time).toLocaleString(); // Convert timestamp to readable format
   row.appendChild(timeCell);
 
   // Append the new row to the table body
-  tbody.insertBefore(row, tbody.firstChild)
+  tbody.insertBefore(row, tbody.firstChild);
 }
 
 run_binance_aggr();
