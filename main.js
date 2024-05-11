@@ -219,7 +219,7 @@ function run_binance_aggr() {
             average_trade_size = total_trade_size / total_trade_num;
             //! PUT NEW FUNC
             if (quantity > 1) {
-              Push_To_Table(price, quantity, tradeTime);
+              Push_To_Table(price, quantity, tradeTime , isBuyerMaker);
             }
           } else if (message.e === "markPriceUpdate") {
             const {
@@ -263,7 +263,7 @@ function updateTradeStats() {
   document.getElementById("current_btc_val").innerText = current_btc_val;
 }
 
-function Push_To_Table(price, quantity, time) {
+function Push_To_Table(price, quantity, time, flag) {
   // Find the table body in your HTML by its ID
   const tbody = document.getElementById("tradeTableBody");
 
@@ -271,12 +271,11 @@ function Push_To_Table(price, quantity, time) {
   const row = document.createElement("tr");
   row.className = "border-b border-neutral-200 white:border-white/10"; // Apply the same styling
 
+
   // Apply conditional styling based on the quantity
-  if (quantity > 10) {
+  if (flag) {
     row.style.backgroundColor = "green"; 
-  } else if (quantity > 5) {
-    row.style.backgroundColor = "lime"; 
-  } else if (quantity > 50) {
+  } else {
     row.style.backgroundColor = "red"
   }
 
