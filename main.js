@@ -7,144 +7,15 @@ let total_trade_num = 0;
 let total_trade_above_1BTC = 0;
 let current_btc_val = 0;
 let filter_quantity = 1;
-function run_okx_aggr() {
-  // Replace 'wss://your-websocket-url' with your actual WebSocket server URL
-  const ws = new WebSocket("wss://wspri.okx.com:8443/ws/v5/ipublic");
 
-  ws.on("open", function open() {
-    console.log("Connected to the WebSocket server.");
-
-    ws.send(
-      JSON.stringify({
-        op: "subscribe",
-        args: [
-          { channel: "instruments", instType: "SPOT" },
-          { channel: "instruments", instType: "FUTURES" },
-          { channel: "instruments", instType: "SWAP" },
-          { channel: "instruments", instType: "OPTION" },
-          { channel: "tickers", instId: "BTC-USDT-SWAP" },
-          { channel: "mark-price", instId: "BTC-USDT-SWAP" },
-          { channel: "index-tickers", instId: "BTC-USDT" },
-          { channel: "funding-rate", instId: "BTC-USDT-SWAP" },
-          {
-            channel: "estimated-price",
-            instType: "SWAP",
-            instFamily: "BTC-USDT",
-          },
-          { channel: "open-interest", instId: "BTC-USDT-SWAP" },
-          { channel: "price-limit", instId: "BTC-USDT-SWAP", instType: "SWAP" },
-          { channel: "books-grouped", instId: "BTC-USDT-SWAP", grouping: "10" },
-          { channel: "books-grouped", instId: "BTC-USDT-SWAP", grouping: "10" },
-          { channel: "aggregated-trades", instId: "BTC-USDT-SWAP" },
-          { channel: "notable-market-changes", entityId: "1" },
-          { channel: "candle15m", instId: "BTC-USDT-SWAP" },
-        ],
-      })
-    );
-
-    ws.send(
-      JSON.stringify({
-        op: "subscribe",
-        args: [{ channel: "cup-tickers-1s", ccy: "BTC" }],
-      })
-    );
-  });
-
-  ws.on("message", function incoming(data) {
-    try {
-      let message = JSON.parse(data);
-
-      // Check if the message has the 'arg' property and if it's for 'aggregated-trades'
-      if (message.arg && message.arg.channel === "aggregated-trades") {
-        console.log("Aggregated Trades Data Received:");
-
-        // Check if 'data' property exists and is an array
-        if (Array.isArray(message.data)) {
-          message.data.forEach((trade) => {
-            console.log(`Instrument ID: ${trade.instId}`);
-            console.log(`First ID: ${trade.fId}`);
-            console.log(`Last ID: ${trade.lId}`);
-            console.log(`Price: ${trade.px}`);
-            console.log(`Size: ${trade.sz}`);
-            console.log(`Side: ${trade.side}`);
-            console.log(`Timestamp: ${new Date(parseInt(trade.ts))}`);
-            console.log("---");
-          });
-        } else {
-          console.log(
-            "Data property is missing or not in expected format:",
-            message.data
-          );
-        }
-      }
-    } catch (e) {
-      console.log("Error parsing message or handling data:", e);
-    }
-  });
-
-  ws.on("close", () => {
-    console.log("Disconnected from the WebSocket server");
-  });
-
-  ws.on("error", (error) => {
-    console.log("WebSocket Error:", error);
-  });
-  /*
-
-// Create a WebSocket connection to the server
-const ws = new WebSocket('wss://wspri.okx.com:8443/ws/v5/ipublic');
-
-// Event handler when the connection is opened
-ws.onopen = function() {
-    console.log('Connected to the WebSocket server.');
-
-    // Send the first subscription message
-    ws.send(JSON.stringify({
-        "op": "subscribe",
-        "args": [
-            {"channel": "instruments", "instType": "SPOT"},
-            {"channel": "instruments", "instType": "FUTURES"},
-            {"channel": "instruments", "instType": "SWAP"},
-            {"channel": "instruments", "instType": "OPTION"},
-            {"channel": "tickers", "instId": "BTC-USDT-SWAP"},
-            {"channel": "mark-price", "instId": "BTC-USDT-SWAP"},
-            {"channel": "index-tickers", "instId": "BTC-USDT"},
-            {"channel": "funding-rate", "instId": "BTC-USDT-SWAP"},
-            {"channel": "estimated-price", "instType": "SWAP", "instFamily": "BTC-USDT"},
-            {"channel": "open-interest", "instId": "BTC-USDT-SWAP"},
-            {"channel": "price-limit", "instId": "BTC-USDT-SWAP", "instType": "SWAP"},
-            {"channel": "books-grouped", "instId": "BTC-USDT-SWAP", "grouping": "10"},
-            {"channel": "books-grouped", "instId": "BTC-USDT-SWAP", "grouping": "0.1"},
-            {"channel": "aggregated-trades", "instId": "BTC-USDT-SWAP"},
-            {"channel": "notable-market-changes", "entityId": "1"},
-            {"channel": "candle15m", "instId": "BTC-USDT-SWAP"}
-        ]
-    }));
-
-    // Send the second subscription message
-    ws.send(JSON.stringify({
-        "op": "subscribe",
-        "args": [{"channel": "cup-tickers-3s", "ccy": "BTC"}]
-    }));
-};
-
-// Event handler for incoming messages
-ws.onmessage = function(event) {
-    console.log('Message from server ', event.data);
-};
-
-// Handle any errors that occur
-ws.onerror = function(error) {
-    console.log('WebSocket Error: ', error);
-};
-
-// Handle the WebSocket connection closing
-ws.onclose = function(event) {
-    console.log('WebSocket connection closed: ', event);
-};
-
-*/
-}
+let buy_num = 0;
+let sell_num = 0;
+let buy_average = 0;
+let sell_average = 0;
+let buy_total = 0;
+let sell_total = 0;
+let buyer_to_seller_ratio = 0;
+let buyer_to_seller_average_ratio = 0;
 
 function run_binance_aggr() {
   let messageId = 1; // Initialize message ID
@@ -196,43 +67,9 @@ function run_binance_aggr() {
           });
           const message = JSON.parse(decompressed);
 
-          // Process your message here
-          if (message.e === "aggTrade") {
-            const {
-              e: eventType,
-              E: eventTime,
-              a: aggTradeId,
-              s: symbol,
-              p: price,
-              q: quantity,
-              f: firstTradeId,
-              l: lastTradeId,
-              T: tradeTime,
-              m: isBuyerMaker,
-            } = message;
-            current_btc_val = parseFloat(price);
-            total_trade_num++;
-            total_trade_size += parseFloat(quantity);
-            if (parseFloat(quantity) > 1) {
-              total_trade_above_1BTC++;
-            }
-            average_trade_size = total_trade_size / total_trade_num;
-            //! PUT NEW FUNC
-            if (quantity > 1) {
-              Push_To_Table(price, quantity, tradeTime, isBuyerMaker);
-            }
-          } else if (message.e === "markPriceUpdate") {
-            const {
-              e: eventType,
-              E: eventTime,
-              s: symbol,
-              p: price,
-              P: indexPrice,
-              i: interestRate,
-              r: fundingRate,
-              T: nextFundingTime,
-            } = message;
-          }
+          // Call handle function to process the message
+          handle(message);
+
           // Update HTML with new data
           updateTradeStats();
         } catch (err) {
@@ -267,16 +104,16 @@ function Push_To_Table(price, quantity, time, flag) {
   // Find the table body in your HTML by its ID
   const tbody = document.getElementById("tradeTableBody");
 
+  if (!tbody) {
+    console.error("Table body element with ID 'tradeTableBody' not found.");
+    return;
+  }
+
   // Create a new row element
   const row = document.createElement("tr");
   row.className = "border-b border-neutral-200 white:border-white/10"; // Apply the same styling
 
-  // Apply conditional styling based on the quantity
-  if (flag) {
-    row.style.backgroundColor = "green";
-  } else {
-    row.style.backgroundColor = "red";
-  }
+  row.style.backgroundColor = flag ? "red" : "green";
 
   // Create and append the cell for the trade index (assuming you want it)
   const indexCell = document.createElement("td");
@@ -299,16 +136,69 @@ function Push_To_Table(price, quantity, time, flag) {
   row.appendChild(priceCell);
 
   // Create and append the cell for the time
-  const timeCell = document.createElement("td");
-  timeCell.className = "whitespace-nowrap px-6 py-4 text-white font-bold"; // Added text-white and font-bold
-  timeCell.textContent = new Date(time).toLocaleString(); // Convert timestamp to readable format
-  row.appendChild(timeCell);
+  //const timeCell = document.createElement("td");
+  //timeCell.className = "whitespace-nowrap px-6 py-4 text-white font-bold"; // Added text-white and font-bold
+  //timeCell.textContent = new Date(time).toLocaleString(); // Convert timestamp to readable format
+  //row.appendChild(timeCell);
 
   // Append the new row to the table body
   tbody.insertBefore(row, tbody.firstChild);
 }
 
-//run_binance_aggr();
+
+
+run_binance_aggr();
 //! For console use
 // Schedule run_binance_aggr to run every 2 hours
 //setInterval(run_binance_aggr, 7200000); // 7200000 milliseconds = 2 hours
+
+// Destructure Objects
+function handle(message) {
+  if (message.e === "aggTrade") {
+    const {
+      e: eventType,
+      E: eventTime,
+      a: aggTradeId,
+      s: symbol,
+      p: price,
+      q: quantity,
+      f: firstTradeId,
+      l: lastTradeId,
+      T: tradeTime,
+      m: isBuyerMaker,
+    } = message;
+    stats_calc(price, quantity, isBuyerMaker);
+    if (parseFloat(quantity) > 1) {
+      Push_To_Table(
+        parseFloat(price),
+        parseFloat(quantity),
+        tradeTime,
+        isBuyerMaker
+      );
+    }
+  }
+}
+
+function stats_calc(price, quantity, isBuyerMaker) {
+  current_btc_val = parseFloat(price);
+  total_trade_num++;
+  total_trade_size += parseFloat(quantity);
+  if (parseFloat(quantity) > 1) {
+    total_trade_above_1BTC++;
+  }
+  average_trade_size = total_trade_size / total_trade_num;
+
+  if (isBuyerMaker) {
+    sell_num += 1;
+    sell_total += quantity;
+    sell_average = sell_total / sell_num;
+    // If true then it's a sell order
+  } else {
+    buy_num += 1;
+    buy_total += quantity;
+    buy_average = buy_total / buy_num;
+    // It's a buy order
+  }
+  buyer_to_seller_ratio = buy_num / sell_num;
+  buyer_to_seller_average_ratio = buy_total / sell_total;
+}

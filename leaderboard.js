@@ -8,7 +8,7 @@ const di = process.env.device_info;
 const fvidid = process.env.fvideo_id;
 const fvidto = process.env.fvideo_token;
 
-const uid = `FB23E1A8B7E2944FAAEC6219BBDF8243`
+const uid = `E921F42DCD4D9F6ECC0DFCE3BAB1D11A`
 
 function Get_Position() {
   const myHeaders = new Headers();
@@ -69,4 +69,4 @@ function Get_Position() {
     .catch((error) => console.error(error));
 }
 
-//Get_Position()
+Get_Position()
