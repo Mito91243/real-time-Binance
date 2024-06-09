@@ -228,7 +228,6 @@ function stats_calc(price, quantity, isBuyerMaker) {
   updateDataRow();
 }
 
-
 setInterval(() => {
   const tbody = document.getElementById("ratioTableBody");
   const emptyRow = createEmptyRow();
@@ -247,5 +246,13 @@ setInterval(() => {
 
     return tr;
   }
-}, 60000); // 60000 milliseconds = 1 minute
 
+  let buy_num = 0;
+  let sell_num = 0;
+  let buy_average = 0;
+  let sell_average = 0;
+  let buy_total = 0;
+  let sell_total = 0;
+  let buyer_to_seller_ratio = 0;
+  let buyer_to_seller_average_ratio = 0;
+}, 60000); // 60000 milliseconds = 1 minute
