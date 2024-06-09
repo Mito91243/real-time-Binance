@@ -247,12 +247,12 @@ setInterval(() => {
     return tr;
   }
 
-  let buy_num = 0;
-  let sell_num = 0;
-  let buy_average = 0;
-  let sell_average = 0;
-  let buy_total = 0;
-  let sell_total = 0;
-  let buyer_to_seller_ratio = 0;
-  let buyer_to_seller_average_ratio = 0;
+  buy_num = 0;
+  sell_num = 0;
+  buy_average = 0;
+  sell_average = 0;
+  buy_total = 0;
+  sell_total = 0;
+  buyer_to_seller_ratio = 0;
+  buyer_to_seller_average_ratio = 0;
 }, 60000); // 60000 milliseconds = 1 minute
