@@ -196,31 +196,56 @@
     </div>
     <!-- STATS -->
 
-    <!-- Trades -->
-    <div class="flex flex-col">
-      <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-        <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-          <div class="overflow-hidden">
-            <table
-              class="min-w-full text-center text-sm font-light text-surface white:text-white"
-            >
-              <thead
-                class="border-b border-neutral-200 bg-neutral-50 font-medium white:border-white/10 white:text-neutral-800"
-              >
-                <tr>
-                  <th scope="col" class="px-6 py-4">#</th>
-                  <th scope="col" class="px-6 py-4">Amount</th>
-                  <th scope="col" class="px-6 py-4">Price</th>
-                  <th scope="col" class="px-6 py-4">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody id="tradeTableBody"></tbody>
-            </table>
-          </div>
-        </div>
+    <div class="flex justify-between m-5 items-start">
+      <!-- Ratio Table -->
+      <div class="overflow-x-auto">
+        <table id="ratioTable" class="bg-white shadow-md rounded-xl">
+          <thead>
+            <tr class="bg-blue-gray-100 text-gray-700">
+              <th class="py-3 px-4 text-left">Candle Time</th>
+              <th class="py-3 px-4 text-left">Buy Orders</th>
+              <th class="py-3 px-4 text-left">Sell Orders</th>
+              <th class="py-3 px-4 text-left">Average Buy</th>
+              <th class="py-3 px-4 text-left">Average Sell</th>
+              <th class="py-3 px-4 text-left">Buyer/Seller Ratio</th>
+              <th class="py-3 px-4 text-left">Buyer/Seller Average Ratio</th>
+            </tr>
+          </thead>
+          <tbody id="ratioTableBody" class="text-blue-gray-900">
+            <tr id="dataRow" class="border-b border-blue-gray-200">
+              <td id="candleTimeCell" class="py-3 px-4"></td>
+              <td id="buyNumCell" class="py-3 px-4"></td>
+              <td id="sellNumCell" class="py-3 px-4"></td>
+              <td id="buyAverageCell" class="py-3 px-4"></td>
+              <td id="sellAverageCell" class="py-3 px-4"></td>
+              <td id="buyerToSellerRatioCell" class="py-3 px-4"></td>
+              <td id="buyerToSellerAverageRatioCell" class="py-3 px-4"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="w-full pt-5 px-4 mb-2 mx-auto"></div>
       </div>
+      <!-- Ratio Table -->
+
+      <!-- Trades -->
+      <div class="overflow-x-auto ml-10">
+        <table
+          class="min-w-full text-center text-sm font-light text-surface white:text-white"
+        >
+          <thead
+            class="border-b border-neutral-200 bg-neutral-50 font-medium white:border-white/10 white:text-neutral-800"
+          >
+            <tr>
+              <th scope="col" class="px-6 py-4">#</th>
+              <th scope="col" class="px-6 py-4">Amount</th>
+              <th scope="col" class="px-6 py-4">Price</th>
+            </tr>
+          </thead>
+          <tbody id="tradeTableBody"></tbody>
+        </table>
+      </div>
+      <!-- Trades -->
     </div>
-    <!-- Trades -->
 
     <script src="main.js" type="module"></script>
   </body>
