@@ -145,7 +145,26 @@ function Push_To_Table(price, quantity, time, flag) {
   tbody.insertBefore(row, tbody.firstChild);
 }
 
+function updateDataRow() {
+  //const candleTimeCell = document.querySelector("td:nth-child(1)");
+  const buyNumCell = document.querySelector("td:nth-child(2)");
+  const sellNumCell = document.querySelector("td:nth-child(3)");
+  const buyAverageCell = document.querySelector("td:nth-child(4)");
+  const sellAverageCell = document.querySelector("td:nth-child(5)");
+  const buyerToSellerRatioCell = document.querySelector("td:nth-child(6)");
+  const buyerToSellerAverageRatioCell =
+    document.querySelector("td:nth-child(7)");
 
+  // Update the cell contents
+  //candleTimeCell.textContent = candleTime;
+  buyNumCell.textContent = buy_num;
+  sellNumCell.textContent = sell_num;
+  buyAverageCell.textContent = buy_average.toFixed(2);
+  sellAverageCell.textContent = sell_average.toFixed(2);
+  buyerToSellerRatioCell.textContent = buyer_to_seller_ratio.toFixed(2);
+  buyerToSellerAverageRatioCell.textContent =
+    buyer_to_seller_average_ratio.toFixed(2);
+}
 
 run_binance_aggr();
 //! For console use
@@ -180,10 +199,12 @@ function handle(message) {
 }
 
 function stats_calc(price, quantity, isBuyerMaker) {
-  current_btc_val = parseFloat(price);
+  quantity = parseFloat(quantity);
+  price = parseFloat(price);
+  current_btc_val = price;
   total_trade_num++;
-  total_trade_size += parseFloat(quantity);
-  if (parseFloat(quantity) > 1) {
+  total_trade_size += quantity;
+  if (quantity > 1) {
     total_trade_above_1BTC++;
   }
   average_trade_size = total_trade_size / total_trade_num;
@@ -201,4 +222,30 @@ function stats_calc(price, quantity, isBuyerMaker) {
   }
   buyer_to_seller_ratio = buy_num / sell_num;
   buyer_to_seller_average_ratio = buy_total / sell_total;
+  console.log(sell_average);
+  console.log(buy_average);
+  console.log(buyer_to_seller_ratio);
+  updateDataRow();
 }
+
+
+setInterval(() => {
+  const tbody = document.getElementById("ratioTableBody");
+  const emptyRow = createEmptyRow();
+  tbody.insertBefore(emptyRow, tbody.firstChild); // Insert before the first child
+
+  function createEmptyRow() {
+    const tr = document.createElement("tr");
+    tr.classList.add("border-b", "border-blue-gray-200");
+
+    // Create 7 empty <td> elements
+    for (let i = 0; i < 7; i++) {
+      const td = document.createElement("td");
+      td.classList.add("py-3", "px-4");
+      tr.appendChild(td);
+    }
+
+    return tr;
+  }
+}, 60000); // 60000 milliseconds = 1 minute
+
