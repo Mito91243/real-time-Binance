@@ -255,4 +255,4 @@ setInterval(() => {
   sell_total = 0;
   buyer_to_seller_ratio = 0;
   buyer_to_seller_average_ratio = 0;
-}, 60000); // 60000 milliseconds = 1 minute
+}, 60000*5); // 60000 milliseconds = 1 minute
