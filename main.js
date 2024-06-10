@@ -146,7 +146,7 @@ function Push_To_Table(price, quantity, time, flag) {
 }
 
 function updateDataRow() {
-  //const candleTimeCell = document.querySelector("td:nth-child(1)");
+  const candleTimeCell = document.querySelector("td:nth-child(1)");
   const buyNumCell = document.querySelector("td:nth-child(2)");
   const sellNumCell = document.querySelector("td:nth-child(3)");
   const buyAverageCell = document.querySelector("td:nth-child(4)");
@@ -156,7 +156,7 @@ function updateDataRow() {
     document.querySelector("td:nth-child(7)");
 
   // Update the cell contents
-  //candleTimeCell.textContent = candleTime;
+  candleTimeCell.textContent = new Date().toLocaleTimeString();
   buyNumCell.textContent = buy_num;
   sellNumCell.textContent = sell_num;
   buyAverageCell.textContent = buy_average.toFixed(2);
